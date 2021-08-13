@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Youtube</string>
+    <string name="hello_amnah">Hello Amnah 🙌</string>
+    <string name="search_for_a_specific_movie">Search for a specific movie</string>
+    <string name="let_s_have_fun_with_the_cinema">Let\'s have fun with the cinema</string>
+    <string name="old_movies">Old Movies</string>
+    <string name="all_movies">All Movies</string>
 </resources>

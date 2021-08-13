@@ -1,12 +1,13 @@
 package com.examble.youtube.ui
 
 import android.annotation.SuppressLint
+import android.app.PictureInPictureParams
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
+import com.examble.youtube.R
 import com.examble.youtube.databinding.ActivityVideoPlayerBinding
 import com.examble.youtube.util.Constant
 import com.google.android.exoplayer2.MediaItem
@@ -18,56 +19,31 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 
 class VideoPlayerActivity : AppCompatActivity() {
     private lateinit var _binding: ActivityVideoPlayerBinding
-
     private var player: SimpleExoPlayer? = null
 
-    @SuppressLint("SetTextI18n")
+    private lateinit var pictureInPictureParams: PictureInPictureParams.Builder
+
+    @SuppressLint("SetTextI18n", "ObsoleteSdkInt")
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Youtube)
         super.onCreate(savedInstanceState)
         _binding = ActivityVideoPlayerBinding.inflate(layoutInflater)
         setContentView(_binding.root)
 
-        val extraTitle = intent.getStringExtra(Constant.VIDEO_TITLE)
-        val extraArt = intent.getStringExtra(Constant.VIDEO_ART)
-        val extraDirector = intent.getStringExtra(Constant.VIDEO_DIRECTOR)
+        initializeExoPlayer()
 
-        getBindingView(extraTitle, extraArt, extraDirector)
-
-        initializePlayer()
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun getBindingView(extraTitle: String?, extraArt: String?, extraDirector: String?) {
-        _binding.apply {
-            titleOfVideoExo.text = extraTitle
-            expand1.setOnClickListener { showDescription() }
-            expand2.setOnClickListener { showLessDescription() }
-            pressShare.setOnClickListener { showHint("share this video") }
-            pressDownload.setOnClickListener { showHint("Upload this Video") }
-            pressSave.setOnClickListener { showHint("Video is saved") }
-            description.text = intent.getStringExtra(Constant.VIDEO_DESCRIPTION)
-            viewsCount.text = "${intent.getStringExtra(Constant.VIDEO_DURATION)} views. "
-            yearPublished.text = "${intent.getStringExtra(Constant.VIDEO_YEAR)} published"
-            Glide.with(applicationContext).load(extraArt).into(channelProfile)
-            channelName.text = extraDirector
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            pictureInPictureParams = PictureInPictureParams.Builder()
         }
     }
 
-    private fun showHint(message: String) {
-        Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showLessDescription() {
-        _binding.expand1.visibility = View.VISIBLE
-        _binding.expand2.visibility = View.GONE
-        _binding.description.visibility = View.GONE
-    }
-
-    private fun showDescription() {
-        _binding.expand1.visibility = View.GONE
-        _binding.expand2.visibility = View.VISIBLE
-        _binding.description.visibility = View.VISIBLE
-
+    private fun initializeExoPlayer() {
+        player = SimpleExoPlayer.Builder(this).build()
+        _binding.exoPlayerVideo.player = player
+        buildMediaSource().let {
+            player?.setMediaSource(it)
+            player?.prepare()
+        }
     }
 
     private fun buildMediaSource(): MediaSource {
@@ -75,15 +51,6 @@ class VideoPlayerActivity : AppCompatActivity() {
         val dataSourceFactory = DefaultDataSourceFactory(this, "sample")
         return ProgressiveMediaSource.Factory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(Uri.parse(videoUrl)))
-    }
-
-    private fun initializePlayer() {
-        player = SimpleExoPlayer.Builder(this).build()
-        _binding.exoPlayerVideo.player = player
-        buildMediaSource().let {
-            player?.setMediaSource(it)
-            player?.prepare()
-        }
     }
 
     override fun onResume() {
@@ -102,4 +69,38 @@ class VideoPlayerActivity : AppCompatActivity() {
     private fun releasePlayer() {
         player?.release()
     }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private fun getPictureInPictureMode() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+//            val videoDimension = _binding.exoPlayerVideo
+//            val aspectRation = Rational(videoDimension.width, videoDimension.height)
+//            pictureInPictureParams.setAspectRatio(aspectRation).build()
+
+            enterPictureInPictureMode(pictureInPictureParams.build())
+
+        } else {
+            Log.i(TAG, "Not available for this version")
+        }
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+
+            if (!isInPictureInPictureMode) {
+                getPictureInPictureMode()
+            } else {
+                Log.i(TAG, "Not available for this version")
+            }
+        }
+    }
+
+    companion object {
+        const val TAG = "AMNAH"
+    }
+
 }

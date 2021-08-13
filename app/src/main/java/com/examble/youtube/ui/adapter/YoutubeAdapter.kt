@@ -5,14 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.examble.youtube.data.response.Item
 import com.examble.youtube.databinding.RawItemBinding
 import com.examble.youtube.ui.VideoPlayerActivity
 import com.examble.youtube.data.response.Youtube
-import com.examble.youtube.util.Constant
+import com.examble.youtube.util.Constant.VIDEO_URL
+import okhttp3.internal.notifyAll
 
-class YoutubeAdapter(val youtube: Youtube, private val context: Context) :
+class YoutubeAdapter(val youtube: Youtube, private val context: Context, val numberOfPosition:Int) :
     RecyclerView.Adapter<YoutubeAdapter.YoutubeViewHolder>() {
 
     inner class YoutubeViewHolder(val binding: RawItemBinding?) :
@@ -27,7 +30,7 @@ class YoutubeAdapter(val youtube: Youtube, private val context: Context) :
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: YoutubeViewHolder, position: Int) {
-        val currentItem = youtube.feed[position].items[0]
+        val currentItem = youtube.feed[position].items[numberOfPosition]
 
         holder.binding!!.apply {
             titleOfVideo.text = currentItem.title
@@ -37,16 +40,11 @@ class YoutubeAdapter(val youtube: Youtube, private val context: Context) :
             duration.text = ",${currentItem.year}"
         }
 
-        holder.binding.root.setOnClickListener {
+        holder.binding.playVideo.setOnClickListener {
             val intent = Intent(context,VideoPlayerActivity::class.java)
             intent.apply {
-                putExtra(Constant.VIDEO_URL,currentItem.url)
-                putExtra(Constant.VIDEO_TITLE,currentItem.title)
-                putExtra(Constant.VIDEO_DESCRIPTION,currentItem.description)
-                putExtra(Constant.VIDEO_DURATION,currentItem.duration.toString())
-                putExtra(Constant.VIDEO_YEAR,currentItem.year.toString())
-                putExtra(Constant.VIDEO_DIRECTOR,currentItem.director)
-                putExtra(Constant.VIDEO_ART,currentItem.art)
+
+                putExtra(VIDEO_URL,currentItem.url)
             }
             context.startActivity(intent)
         }
@@ -54,7 +52,7 @@ class YoutubeAdapter(val youtube: Youtube, private val context: Context) :
 
     override fun getItemCount():Int{
 
-        return youtube.feed.count()
+        return youtube.feed.size
     }
 
 }
