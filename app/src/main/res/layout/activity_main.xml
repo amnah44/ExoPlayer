@@ -40,7 +40,7 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/notification_background"
         android:padding="8dp"
-        android:src="@drawable/ic_notifications"
+        android:src="@drawable/ic_search"
         app:layout_constraintBottom_toBottomOf="@+id/welcome_msg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -92,20 +92,6 @@
             android:text="Funny" />
 
     </com.google.android.material.chip.ChipGroup>
-
-    <ImageView
-        android:id="@+id/textView3"
-        android:layout_width="8dp"
-        android:layout_height="8dp"
-        android:layout_marginEnd="3dp"
-        android:background="@drawable/icon_background"
-        android:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.51"
-        app:layout_constraintStart_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.32" />
 
     <TextView
         android:id="@+id/category"
